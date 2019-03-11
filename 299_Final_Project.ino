@@ -3,6 +3,7 @@
 #include <EEPROM.h> 
 #include <QSerial.h>
 Servo servo1Pan, servo2Tilt, servo3Grip;
+QSerial serialIR;
 
 /*#define bumpL 2
 #define bumpR 3
@@ -328,7 +329,30 @@ void grabbb()
   servo2Tilt.write(up);
 }
 
+//checkStart() returns 1 if left, 2 if center, 3 if right, -1 if failed
 
+int checkStart()
+{
+  int attempts = 5;
+  int receivedVal = 0;
+  
+  turn(180);
+  while(attempts > 0)
+  {
+    receivedVal = serialIR.receive(200);
+    if(receivedVal = L){
+      return 1;
+    }
+    if(receivedVal = C){
+      return 2;
+    }
+    if(receivedVal = R){
+      return 3;
+    }
+    attempts--;
+  }
+  return -1;
+}
 
 
 
@@ -353,6 +377,7 @@ void setup() {
   pinMode(encodeR, INPUT);
   analogWrite(speedR,  0);
   analogWrite(speedL,  0);
+  serialIR.attach(IR, -1);
   waitButton();
   speed_locked = false;
   
@@ -382,6 +407,3 @@ int cycle = 0; // Used to be able to make sure that no collisions occur
 //    
 //
 }
-
-
-  
